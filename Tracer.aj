@@ -14,39 +14,27 @@ privileged aspect Tracer {
 	AJCollector _collector = AJCollector.getInstance();
 
 	// all scoped method calls (super can't be captured)
-	// pointcut methodEntry() : execution(* edu.washington.cse..*.* (..));
 	pointcut methodEntry() : execution(* org.joda.time..*.* (..)) &&
 		!throwableCreation();
 
 	// all scoped constructors
-	// pointcut constructor() : call(edu.washington.cse..*.new(..));
 	pointcut constructor() : call(org.joda.time..*.new(..)) &&
 		!throwableCreation();
 
 	// all scoped object initializers [not sure how to use these yet]
-	// pointcut objectInitialization() :
-	// initialization(edu.washington.cse..*.new(..)) && !within(Tracer);
 	pointcut objectInitialization() : initialization(org.joda.time..*.new(..)) && !within(Tracer);
 
 	// all scoped class initializers [not sure how to use these yet]
-	// pointcut classInitialization() :
-	// staticinitialization(edu.washington.cse..*.*) && !within(Tracer);
 	pointcut classInitialization() : staticinitialization(org.joda.time..*.*) && !within(Tracer);
 
 	// all library method calls (e.g., all non-scoped calls)
 	// 2nd clause loses us static calls to instrumenter suite for some reason,
 	// but we don't want these anyways.
-	// pointcut libraryEntry() : call(* *.* (..)) && ! call(*
-	// edu.washington.cse..*.* (..)) && !within(Tracer);
 	pointcut libraryEntry() : call(* *.* (..)) &&
 		!call(* org.joda.time..*.* (..)) && // ignore regular methods
 		!call(* edu.washington.cse..*.* (..)) && 		// ignore tracer code
 		!throwableCreation() &&
 		!within(Tracer);
-
-	// captures calls but not instantiations (the above entry used to be
-	// libEntry)
-	// pointcut libraryEntry() : libEntry() && !within(Tracer);
 
 	// all non-scoped constructor calls
 	pointcut libraryConstructor() : call(*..*.new(..)) && 
@@ -56,23 +44,15 @@ privileged aspect Tracer {
 
 	// all field accesses
 	// Note: Cannot capture references to static final fields (they are inlined)
-//	pointcut fieldGet() : get(* *.*) && !within(Tracer);
+	//	pointcut fieldGet() : get(* *.*) && !within(Tracer);
 
 	// all field sets
 	// Cannot capture initializations of static final fields (they are inlined)
-//	pointcut fieldSet() : set(* *.*) && !within(Tracer);
+	//	pointcut fieldSet() : set(* *.*) && !within(Tracer);
 
 	pointcut exceptionHandler(Object instance) : handler(*) && this(instance);
 
 	pointcut throwableCreation() : call(java.lang.Exception+.new(..));
-
-	// pointcut lastThing() : execution(void org.joda.time.LongAnWriter.testWriteCollection()) &&
-	// !within(Tracer);
-	//
-	// after() : lastThing() {
-	// _collector.writeToScreen();
-	// _collector.writeToDisk();
-	// }
 
 	// //////////////////////////
 	// //////// ADVICE //////////
@@ -85,13 +65,13 @@ privileged aspect Tracer {
 	// _collector.fieldGet(thisJoinPoint);
 	// }
 
-//	after() returning(Object fieldValue): fieldGet() {
-//		_collector.fieldGet(thisJoinPoint, fieldValue);
-//	}
+	//	after() returning(Object fieldValue): fieldGet() {
+	//		_collector.fieldGet(thisJoinPoint, fieldValue);
+	//	}
 
-//	before(Object newValue) : fieldSet() && args(newValue) {
-//		_collector.fieldSet(thisJoinPoint, newValue);
-//	}
+	//	before(Object newValue) : fieldSet() && args(newValue) {
+	//		_collector.fieldSet(thisJoinPoint, newValue);
+	//	}
 
 	// before() : libraryEntry() {
 	// _collector.methodEnter(thisJoinPoint, true);
@@ -147,7 +127,6 @@ privileged aspect Tracer {
 	// _collector.methodExit(thisJoinPoint,returnObject, false);
 	// }
 
-	// Object around() : methodEntryNoTests()
 	Object around() : methodEntry()
 	{
 		JoinPoint jp = thisJoinPoint;
