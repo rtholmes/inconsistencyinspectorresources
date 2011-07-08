@@ -15,8 +15,13 @@
 	<property name="report.evalTest" location="${report}/evalTest" />
 
 	<!-- dynamic tracing environment -->
-	<property name="dynamicTracer.home" value="${inconsistency.home}/dynamictracer" />
-	<property name="lsmr.home" value="${inconsistency.home}/ca.lsmr.common" />
+	<!-- XXX: update to inconsistency.home -->
+	<!--<property name="dynamicTracer.home" value="${inconsistency.home}/dynamictracer" />-->
+	<property name="dynamicTracer.home" value="/Users/rtholmes/Workspaces/speculation-inconsistency/dynamictracer" />
+
+	<!-- XXX: update to inconsistency.home -->		
+	<!--<property name="lsmr.home" value="${inconsistency.home}/ca.lsmr.common" />-->
+		<property name="lsmr.home" value="/Users/rtholmes/Workspaces/speculation-inconsistency/ca.lsmr.common" />
 
 	<!-- dynamic tracing target -->
 	<property name="instrument.home" value="." />
@@ -51,13 +56,28 @@
 	<path id="inconsistency.dynamic.augmented">
 		<path refid="${inconsistency.dynamic}" />
 		<!-- rth: for dynamic -->
-		<dirset dir="${lsmr.home}/bin" />
+<!--		<dirset dir="${lsmr.home}/bin" /> -->
+	
+		<!-- used by the tracer -->
+		<pathelement location="${inconsistency.home}/lib/ca.lsmr.common_20110124.jar"/>
+
+		<!-- used by the tracer -->
+		<!-- <fileset refid="aspect.lib"/> -->
+		<pathelement location="${inconsistency.home}/lib/aspectjtools.jar"/>
+		<pathelement location="${inconsistency.home}/lib/aspectjrt.jar"/>
+
+		
 		<dirset dir="${dynamicTracer.home}/bin" />
 		<fileset refid="lsmr.lib" />
-		<!--		<fileset refid="dynamicTracer.lib" /> -->
-		<!-- end rth -->
-	</path>
 
+
+	</path>
+<!--
+	<fileset id="aspect.lib" dir="${inconsistency.home}/lib/">
+		<include name="aspectjtools.jar"/>
+		<include name="aspectjrt.jar"/>
+	</fileset>
+-->	
 	<fileset id="lsmr.lib" dir="${lsmr.home}/lib/">
 		<include name="*.jar" />
 	</fileset>
@@ -117,7 +137,9 @@
 	<!-- End DependencyFinder -->
 
 	<target name="iiDynamic" depends="" description="perform tests">
-		<junit maxmemory="${maxmemory}" printsummary="yes" haltonfailure="no" fork="yes" forkmode="once">
+		
+<!--				<junit maxmemory="${maxmemory}" printsummary="yes" haltonfailure="no" fork="yes" forkmode="once"> -->
+		<junit maxmemory="4096M" printsummary="yes" haltonfailure="yes" fork="yes" forkmode="once">
 			<!--<jvmarg value="-Djava.compiler=NONE"/> -->
 
 <!--
@@ -142,10 +164,17 @@
 			<classpath refid="inconsistency.dynamic.augmented" />
 
 			<formatter type="plain" usefile="false" />
-			
+		<!--	
 			<batchtest todir="${report.srcTest}">
 				<fileset dir="${test.fileset}" />
 			</batchtest>
+		-->
+			<batchtest todir="${reports}/test">
+	        <fileset dir="${testsrc}">
+	          <include name="**/*Test.java"/>
+	        </fileset>
+	      </batchtest>
+	      
 		</junit>
 
 	</target>
@@ -170,10 +199,16 @@
 	-->
 
 	<target name="iiWeave">
-		<echo message="Weaving: ${instrument.classes}" />
-
+		<echo message="Weaving: ${lib}" />
+		<echo message="Weaving: ${testlib}" />
 		<!-- weave program -->
-		<iajc destDir="${instrument.classes}" Xlintwarnings="false" showWeaveInfo="false" source="1.6">
+<!--		<iajc destDir="${instrument.classes}" Xlintwarnings="false" showWeaveInfo="false" source="1.6"> -->
+		<iajc destDir="${lib}" Xlintwarnings="false" showWeaveInfo="false" source="1.6">
+
+			<argfiles>
+				<pathelement location="${inconsistency.home}/aspect.lst" />
+			</argfiles>
+			
 <!--
 			<argfiles>
 				<pathelement location="${instrument.aspect.list}" />
