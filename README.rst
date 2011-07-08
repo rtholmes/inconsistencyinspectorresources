@@ -7,7 +7,7 @@ InconsistencyInspectorResources
 
 This project contains the resources require to collect data for the InconsistencyInspector. Basically the project enables you to extract the static and dynamic call graphs for a system and export them to an XML file. Currently only projects that can be built (and have their test suite executed) by ``ant`` are supported. If you have any problems, please contact me.
 
-** NOTE** Currently only the static targets are working.
+**NOTE** Currently only the static targets are working. Don't bother with step 7-10, they aren't working.
 
 Instructions
 ---------------------------------
@@ -24,9 +24,9 @@ Instructions
 	2) Copy ``build.inconsistency.xml`` to your project's root directory (where your ``build.xml`` is located) and add ``<import file="build.inconsistency.xml"/>`` to the bottom of your ``build.xml`` file (just above the ``</project>`` tag).
 	3) Copy ``InconsistencyInspector.properties`` to the same directory as in step 2.
 	4) Modify ``InconsistencyInspector.properties`` as described in the file itself; this will configure the static and dynamic analysis engines.
-	5) XXX: Modify the tracer aspect.
-	6) Compile your system and its tests (this depends on your ant configuration but ``ant compile`` is often right).
-	7) Extract the static call graph by executing ``ant iiStatic``. The static call graph will be in the report directory you specified in the properties file.
+	5) Compile your system and its tests (this depends on your ant configuration but ``ant compile`` is often right).
+	6) Extract the static call graph by executing ``ant iiStatic``. The static call graph will be in the report directory you specified in the properties file.
+	7) XXX: Don't bother with these last 4 steps; they aren't currently working. Modify the tracer aspect.
 	8) Run your test suite to make sure everything executes as it should (this step is optional).
 	9) Weave your system to enable the dynamic call graph collection by executing ``ant iiWeave``.
 	10) Run your test suite as you normally would (this depends on your ant configuration but ``ant test`` is often right). The dynamic call graph will be in the report directory you specified in the properties file.
