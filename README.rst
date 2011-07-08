@@ -20,16 +20,17 @@ Instructions
 
 **Complete Instructions:**
 
-	1) Checkout this project (``hg clone XXX``)
+	1) Checkout this project (``hg clone ssh://hg@bitbucket.org/rtholmes/inconsistencyinspectorresources``)
 	2) Copy ``build.inconsistency.xml`` to your project's root directory (where your ``build.xml`` is located) and add ``<import file="build.inconsistency.xml"/>`` to the bottom of your ``build.xml`` file (just above the ``</project>`` tag).
 	3) Copy ``InconsistencyInspector.properties`` to the same directory as in step 2.
 	4) Modify ``InconsistencyInspector.properties`` as described in the file itself; this will configure the static and dynamic analysis engines.
 	5) Compile your system and its tests (this depends on your ant configuration but ``ant compile`` is often right).
 	6) Extract the static call graph by executing ``ant iiStatic``. The static call graph will be in the report directory you specified in the properties file.
-	7) XXX: Don't bother with these last 4 steps; they aren't currently working. Modify the tracer aspect.
-	8) Run your test suite to make sure everything executes as it should (this step is optional).
-	9) Weave your system to enable the dynamic call graph collection by executing ``ant iiWeave``.
-	10) Run your test suite as you normally would (this depends on your ant configuration but ``ant test`` is often right). The dynamic call graph will be in the report directory you specified in the properties file.
+	7) Run your test suite to make sure everything executes as it should (this step is optional).
+	8) Make a custom copy of ``Tracer.aj`` (e.g., ``Tracer_MyProject.aj``). Using search and replace, substitute the base package name (e.g., ``org.foo.project``) for ``org.joda.time`` in the tracer aspect. Update ``aspect.lst`` to list your tracer filename instead of ``Tracer.aj``.
+	9) Weave your system to enable the dynamic call graph collection by executing ``ant iiWeave``. Optional: update your ant heap size (export ``ANT_OPTS="-Xms512m -Xmx512m"`` in bash).
+	10) Update the ``iiDynamic`` target in ``build.inconsistency.xml`` to look like the target that runs the tests in your own system. Important: you should run the test code from the directory that the iiWeave target outputs the code from. XXX: more detail needed here. (Classpath setup?)
+	11) Run your test suite as you normally would (this depends on your ant configuration but ``ant test`` is often right). The dynamic call graph will be in the report directory you specified in the properties file.
 
 Advanced Notes
 ---------------------------------
