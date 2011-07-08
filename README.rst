@@ -7,7 +7,7 @@ InconsistencyInspectorResources
 
 This project contains the resources require to collect data for the InconsistencyInspector. Basically the project enables you to extract the static and dynamic call graphs for a system and export them to an XML file. Currently only projects that can be built (and have their test suite executed) by ``ant`` are supported. If you have any problems, please contact me.
 
-**NOTE** Currently only the static targets are working. Don't bother with step 7-10, they aren't working.
+**NOTE** The static targets are easy to use and configure; the dynamic targets are much more finicky (expect to succeed, but be frustrated in the process).
 
 Instructions
 ---------------------------------
