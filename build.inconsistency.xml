@@ -10,83 +10,12 @@
 	<property name="report.staticAnalysis" location="${report}/static" />
 	<property name="report.dynamicAnalysis" location="${report}/dynamic" />
 
-	<!-- TODO: refactor; these are for the InconsistencyInspector private test suite -->
-	<property name="report.srcTest" location="${report}/srcTest" />
-	<property name="report.evalTest" location="${report}/evalTest" />
-
 	<!-- dynamic tracing environment -->
 	<!-- XXX: update to inconsistency.home -->
 	<!--<property name="dynamicTracer.home" value="${inconsistency.home}/dynamictracer" />-->
 	<property name="dynamicTracer.home" value="/Users/rtholmes/Workspaces/speculation-inconsistency/dynamictracer" />
 
-	<!-- XXX: update to inconsistency.home -->		
-	<!--<property name="lsmr.home" value="${inconsistency.home}/ca.lsmr.common" />-->
-		<property name="lsmr.home" value="/Users/rtholmes/Workspaces/speculation-inconsistency/ca.lsmr.common" />
-
-	<!-- dynamic tracing target -->
-	<property name="instrument.home" value="." />
-	<property name="instrument.lib" value="${instrument.home}/lib/" />
-	
-	<!-- XXX: make this actually point to the specific tracer aspect instead of a file that defines the tracer -->
-	<property name="instrument.aspect.list" value="${inconsistency.home}/dynamictracerant/aspects.lst" />
-
-
-	<!-- TODO: get rid of this stuff
-	
-	<property name="instrument.classes" value="${build.classes}" />
-	<property name="depfindDir" value="${inconsistency.home}/depfind_uw/" />
-	<property name="instrument.home" value="${inconsistency.home}/analysisbenchmark" />
-	<property name="instrument.lib" value="${instrument.home}/lib/" />
-	<property name="instrument.classes" value="${instrument.home}/build/src/" />
-	<property name="instrument.classes.test" value="${instrument.home}/analysisbenchmark/build/srcTest/" />
-	
-	-->
-
-	<!-- AspectJ locations -->
-	<!-- TODO: move these to a shared location
-		Should include:
-			- lsmr.common.jar
-			- dependencyfinder.jar
-	-->
-	<property name="aspectj.tools" value="${inconsistency.home}/lib/aspectjtools.jar" />
-	<property name="aspectj.rt" value="${inconsistency.home}/lib/aspectjrt.jar" />
-	
 	<property name="maxmemory" value="1536m" />
-	
-	<path id="inconsistency.dynamic.augmented">
-		<path refid="${inconsistency.dynamic}" />
-		<!-- rth: for dynamic -->
-<!--		<dirset dir="${lsmr.home}/bin" /> -->
-	
-		<!-- used by the tracer -->
-		<pathelement location="${inconsistency.home}/lib/ca.lsmr.common_20110124.jar"/>
-
-		<!-- used by the tracer -->
-		<!-- <fileset refid="aspect.lib"/> -->
-		<pathelement location="${inconsistency.home}/lib/aspectjtools.jar"/>
-		<pathelement location="${inconsistency.home}/lib/aspectjrt.jar"/>
-
-		
-		<dirset dir="${dynamicTracer.home}/bin" />
-		<fileset refid="lsmr.lib" />
-
-
-	</path>
-<!--
-	<fileset id="aspect.lib" dir="${inconsistency.home}/lib/">
-		<include name="aspectjtools.jar"/>
-		<include name="aspectjrt.jar"/>
-	</fileset>
--->	
-	<fileset id="lsmr.lib" dir="${lsmr.home}/lib/">
-		<include name="*.jar" />
-	</fileset>
-
-	<fileset id="dynamicTracer.lib" dir="${dynamicTracer.home}/lib/">
-		<include name="*.jar" />
-	</fileset>
-	<!-- end tracing -->
-
 
 	<!-- These are the resources needed by the DependencyFinder framework to run the executable behind the iStatic task -->
 	<path id="iiStatic.resources">
@@ -97,22 +26,31 @@
 		<pathelement location="${dependencyfinder.home}/lib/log4j.jar" />
 	</path>
 
+	<!-- dependencyfinder ant definitions -->
 	<taskdef resource="dependencyfindertasks.properties">
 		<classpath refid="iiStatic.resources" />
 	</taskdef>
-	
+
+	<!-- aspectj ant definitions -->
+	<taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
+		<classpath>
+			<pathelement location="${inconsistency.home}/lib/aspectjtools.jar" />
+		</classpath>
+	</taskdef>
+
 	<target name="iiInit" description="Inconsistency: initialize environment (e.g., ensure folders exist))">
 		<!-- create the time stamp -->
 		<tstamp />
 		<!-- ensure reporting directories exist -->
 		<mkdir dir="${report.staticAnalysis}" />
 		<mkdir dir="${report.dynamicAnalysis}" />
-		<mkdir dir="${report.srcTest}" />
-		<mkdir dir="${report.evalTest}" />
 	</target>
 
-	
-	<target name="iiStatic" depends="iiInit" description="Inconsistency: perform static analysis">
+	<!-- 
+		Main Static Extraction Task
+		Before this can be run the system _must_ be compiled first (e.g., ant compile)
+	 -->
+	<target name="iiStatic" depends="iiInit" description="Extract static call graph">
 
 		<!-- NOTE: 'ant compile' must happen before this! -->
 		<!-- NOTE: for unknown reasons this usually fails on the first attempt if 'ant clean' is run first -->
@@ -125,134 +63,70 @@
 
 		<!-- make a copy of the latest extraction for easier reference -->
 		<copy file="${report.staticAnalysis}/static-${DSTAMP}_${TSTAMP}.xml" tofile="${report.staticAnalysis}/static_latest.xml" />
-
-		<!-- configure an HTML version of the report -->
-		<!-- The stylesheet doesn't work with the UW XML format <xslt style="${dependencyfinder.home}/etc/DependencyGraphToHTML.xsl" in="${report.staticAnalysis}/static-${DSTAMP}_${TSTAMP}.xml" 
-			out="${report.staticAnalysis}/static-${DSTAMP}_${TSTAMP}.html" /> -->
-		<!-- The stylesheet doesn't work with the UW XML format <copy file="${dependencyfinder.home}/etc/dependency.style.css" tofile="${report.staticAnalysis}/dependency.style.css" 
-			overwrite="no" /> -->
-		<!-- The stylesheet doesn't work with the UW XML format <copy file="${report.staticAnalysis}/static-${DSTAMP}_${TSTAMP}.html" tofile="${report.staticAnalysis}/static_latest.html" 
-			/> -->
-	</target>
-	<!-- End DependencyFinder -->
-
-	<target name="iiDynamic" depends="" description="perform tests">
 		
-<!--				<junit maxmemory="${maxmemory}" printsummary="yes" haltonfailure="no" fork="yes" forkmode="once"> -->
-		<junit maxmemory="4096M" printsummary="yes" haltonfailure="yes" fork="yes" forkmode="once">
-			<!--<jvmarg value="-Djava.compiler=NONE"/> -->
-
-<!--
-		    <junit printsummary="yes" haltonfailure="no">
-		      <formatter type="plain"  />
-		      <classpath>
-		        <pathelement location="${build.classes}"/>
-		        <pathelement location="${build.tests}"/>
-		        <pathelement location="${build.tz}"/>
-		        <pathelement path="${java.class.path}"/>
-		      </classpath>
-
-		      <batchtest fork="yes">
-		        <fileset dir="${test.home}">
-		          <include name="**/TestAll.java"/>
-		        </fileset>
-		      </batchtest>
-		    </junit>
--->
+	</target>
+	<!-- / Main Static Extraction Task -->
 
 
-			<classpath refid="inconsistency.dynamic.augmented" />
+	<!-- Classpath for dynamic tracing -->
+	<path id="inconsistency.instrumented.classpath">
+		
+		<!-- Corresponds to the classpath id used by the project test target -->
+		<path refid="${inconsistency.classpath}" />
+		
+		<!-- Classpath entries to support the tracing infrastructure -->
+		<pathelement location="${inconsistency.home}/lib/ca.lsmr.common_20110124.jar"/>
+		<pathelement location="${inconsistency.home}/lib/aspectjtools.jar"/>
+		<pathelement location="${inconsistency.home}/lib/aspectjrt.jar"/>
+		<!-- XXX: replace with the JAR below -->
+		<dirset dir="${dynamicTracer.home}/bin" />
+		<!--<pathelement location="${inconsistency.home}/DynamicTracer_dev.jar" />-->
+	</path>
+	
 
+	<!-- After the project has been compiled it can be woven -->
+	<target name="iiWeave" depends="iiInit" description="Instrument resources to prepare for dynamic call graph extraction.">
+
+		<!-- clean the target for the instrumented files -->
+    	<delete dir="${inconsistency.instrumented}" />
+		<mkdir 	dir="${inconsistency.instrumented}" />
+
+		<!-- weave program -->
+		<iajc destDir="${inconsistency.instrumented}" Xlintwarnings="false" showWeaveInfo="false" source="1.6">			
+
+			<argfiles>
+				<!-- the aspect list file describes which Tracer aspect to use -->
+				<pathelement location="${inconsistency.aspect.lst}" />
+			</argfiles>
+
+			<inpath>
+				<!-- these arguments describe which files to weave -->
+				<pathelement location="${inconsistency.static.src}" />
+				<pathelement location="${inconsistency.static.test}" />				
+			</inpath>
+
+			<classpath>
+				<path refid="inconsistency.instrumented.classpath" />
+			</classpath>
+		</iajc>
+	
+	</target>
+
+	<target name="iiDynamic" depends="iiWeave" description="Run test suite collecting the dynamic call graph.">
+		
+		<junit maxmemory="${maxmemory}" printsummary="yes" haltonfailure="no" fork="yes" forkmode="once">
+			<classpath refid="inconsistency.instrumented.classpath" />
 			<formatter type="plain" usefile="false" />
-		<!--	
-			<batchtest todir="${report.srcTest}">
-				<fileset dir="${test.fileset}" />
-			</batchtest>
-		-->
+			
+			<!-- extracted from original project build.xml file -->
 			<batchtest todir="${reports}/test">
-	        <fileset dir="${testsrc}">
-	          <include name="**/*Test.java"/>
-	        </fileset>
-	      </batchtest>
-	      
+	        	<fileset dir="${testsrc}">
+	          		<include name="**/*Test.java"/>
+	        	</fileset>
+	      	</batchtest>
 		</junit>
 
 	</target>
 
-	<taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
-		<classpath>
-			<pathelement location="${aspectj.tools}" />
-		</classpath>
-	</taskdef>
-
-
-	<!--
-	<path id="test.classpath">
-		<pathelement path="${instrument.classes}" />
-		<pathelement path="${instrument.classes.test}" />
-
-		<dirset dir="${lsmr.home}/bin" />
-		<dirset dir="${dynamicTracer.home}/bin" />
-		<fileset refid="lsmr.lib" />
-
-	</path>
-	-->
-
-	<target name="iiWeave">
-		<echo message="Weaving: ${lib}" />
-		<echo message="Weaving: ${testlib}" />
-		<!-- weave program -->
-<!--		<iajc destDir="${instrument.classes}" Xlintwarnings="false" showWeaveInfo="false" source="1.6"> -->
-		<iajc destDir="${lib}" Xlintwarnings="false" showWeaveInfo="false" source="1.6">
-
-			<argfiles>
-				<pathelement location="${inconsistency.home}/aspect.lst" />
-			</argfiles>
-			
-<!--
-			<argfiles>
-				<pathelement location="${instrument.aspect.list}" />
-			</argfiles>
--->
-
-			<inpath>
-<!--				<pathelement location="${instrument.classes}" /> -->
-					<pathelement location="${lib}" />
-					<pathelement location="${testlib}" />
-			</inpath>
-
-			
-			<classpath>
-				<pathelement location="${aspectj.rt}" />
-				<dirset dir="${dynamicTracer.home}/bin" />
-
-
-		        <pathelement location="${instrument.classes}"/>
-				<path refid="inconsistency.dynamic.augmented" />
-				
-			</classpath>
-		</iajc>
-
-<!--		<echo message="NOTE: The target class should not have been woven before, if you get errors, clean the target, build it, then apply the weaving" /> -->
-
-		<!-- weave test classes -->
-		<!-- NOTE: I can't remember why this is commented out -->
-		<!--
-		<iajc destDir="${instrument.classes.test}" Xlintwarnings="false" showWeaveInfo="false" source="1.6">
-			<argfiles>
-				<pathelement location="${aop.project}/aspects.lst" />
-			</argfiles>
-			<inpath>
-				<pathelement location="${instrument.classes.test}" />
-			</inpath>
-			<classpath>
-				<pathelement location="${aspectj.rt}" />
-				<path refid="test.classpath" />
-			</classpath>
-		</iajc>
-		-->
-
-	
-	</target>
 
 </project>
