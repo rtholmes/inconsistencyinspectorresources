@@ -121,7 +121,7 @@
 			
 			<!-- extracted from original project build.xml file -->
 			<batchtest todir="${reports}/test">
-	        	<fileset dir="${testsrc}">
+	        	<fileset dir="${test.source.root}">
 	          		<include name="**/*Test.java"/>
 	        	</fileset>
 	      	</batchtest>
