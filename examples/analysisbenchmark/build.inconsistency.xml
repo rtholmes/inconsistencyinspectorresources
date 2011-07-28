@@ -19,8 +19,8 @@
 	<!-- These are the resources needed by the DependencyFinder framework to run the executable behind the iStatic task -->
 	<path id="iiStatic.resources">
 		<pathelement location="${dependencyfinder.home}/classes" />
-		<pathelement location="${inconsistency.home}/AnalysisBenchmark.jar" />
-		<pathelement location="${inconsistency.home}/DependencyFinder_dev.jar" />
+		<fileset dir="${inconsistency.home}/" includes="ca.uwaterloo.cs.se.inconsistency.core_*.jar" />
+		<fileset dir="${inconsistency.home}/" includes="DependencyFinder_*.jar" />
 		<pathelement location="${dependencyfinder.home}/lib/jakarta-oro.jar" />
 		<pathelement location="${dependencyfinder.home}/lib/log4j.jar" />
 	</path>
