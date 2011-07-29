@@ -1,12 +1,10 @@
-<project name="InconsistencyInspectorResources">
+<project name="InconsistencyInspectorcyInspectorResources">
 	<description>
 		This project can be added to existing ant-based build systems to extract static and dynamic call graphs.
 	</description>
 
-	<property name="iiRoot" location="/Users/rtholmes/Workspaces/speculation-inconsistency/InconsistencyInspectorResources/examples/voldemort" />
-	
 	<!-- InconsistencyInspector.properties is the main configuration file -->
-	<property file="${iiRoot}/InconsistencyInspector.properties" />
+	<property file="InconsistencyInspector.properties" />
 	
 	<!-- Reporting locations -->
 	<property name="report" location="${report.home}" />
@@ -21,8 +19,8 @@
 	<!-- These are the resources needed by the DependencyFinder framework to run the executable behind the iStatic task -->
 	<path id="iiStatic.resources">
 		<pathelement location="${dependencyfinder.home}/classes" />
-		<pathelement location="${inconsistency.home}/AnalysisBenchmark.jar" />
-		<pathelement location="${inconsistency.home}/DependencyFinder_dev.jar" />
+		<fileset dir="${inconsistency.home}/" includes="ca.uwaterloo.cs.se.inconsistency.core_*.jar" />
+		<fileset dir="${inconsistency.home}/" includes="DependencyFinder_*.jar" />
 		<pathelement location="${dependencyfinder.home}/lib/jakarta-oro.jar" />
 		<pathelement location="${dependencyfinder.home}/lib/log4j.jar" />
 	</path>
@@ -42,8 +40,6 @@
 	<target name="iiInit" description="Inconsistency: initialize environment (e.g., ensure folders exist))">
 		<!-- create the time stamp -->
 		<tstamp />
-		
-		<echo message="Creating reporting directories in: ${report}" />
 		<!-- ensure reporting directories exist -->
 		<mkdir dir="${report.staticAnalysis}" />
 		<mkdir dir="${report.dynamicAnalysis}" />
@@ -77,16 +73,15 @@
 
 		<!-- Earlier classes override later ones (e.g., here the instrumented classes trumps their non-instrumented counterparts) -->
 		<path location="${inconsistency.instrumented}" />
-
 		
 		<!-- Corresponds to the classpath id used by the project test target -->
 		<path refid="${inconsistency.classpath}" />
 		
 		<!-- Classpath entries to support the tracing infrastructure -->
-		<pathelement location="${inconsistency.home}/lib/ca.lsmr.common_20110124.jar"/>
 		<pathelement location="${inconsistency.home}/lib/aspectjtools.jar"/>
 		<pathelement location="${inconsistency.home}/lib/aspectjrt.jar"/>
-		<pathelement location="${inconsistency.home}/DynamicTracer_dev.jar" />
+		<fileset dir="${inconsistency.home}/" includes="DynamicTracer_*.jar" />
+		<fileset dir="${inconsistency.home}/" includes="ca.lsmr.common_*.jar"/>
 	</path>
 	
 
@@ -119,16 +114,13 @@
 	</target>
 
 	<target name="iiDynamic" description="Run test suite collecting the dynamic call graph.">
-		
-
-
 	    <replace-dir dir="${testreport.dir}" />
 	    <replace-dir dir="${testhtml.dir}" />
 		<junit maxmemory="${maxmemory}" printsummary="yes" haltonfailure="no" fork="yes"> <!--  forkmode="once" does not seem to work for voldemort -->
 			<classpath refid="inconsistency.instrumented.classpath" />
 	      <formatter type="xml" />
 	      <batchtest fork="yes" todir="${testreport.dir}">
-	        <fileset dir="${unittestsrc.dir}">
+	        <fileset dir="${test.source.root}">
 	          <include name="**/*Test.java" />
 	          <exclude name="**/Abstract*.java" />
 	        </fileset>
@@ -141,26 +133,5 @@
 	      <report todir="${testhtml.dir}" format="frames" />
 	    </junitreport>
 	
-	
 	</target>
-
-<!--
-For reference
-	<target name="iiDynamic" description="Run test suite collecting the dynamic call graph.">
-		
-		<junit maxmemory="${maxmemory}" printsummary="yes" haltonfailure="no" fork="yes" forkmode="once">
-			<classpath refid="inconsistency.instrumented.classpath" />
-			<formatter type="plain" usefile="false" />
-			
-			<batchtest todir="${reports}/test">
-	        	<fileset dir="${testsrc}">
-	          		<include name="**/*Test.java"/>
-	        	</fileset>
-	      	</batchtest>
-		</junit>
-
-	</target>
--->
-
-
 </project>
