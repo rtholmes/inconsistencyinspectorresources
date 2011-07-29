@@ -1,4 +1,4 @@
-<project name="InconsistencyInspectorResources">
+<project name="InconsistencyInspectorcyInspectorResources">
 	<description>
 		This project can be added to existing ant-based build systems to extract static and dynamic call graphs.
 	</description>
