@@ -7,11 +7,11 @@ package edu.washington.cse.longan.trace;
 
 import org.aspectj.lang.JoinPoint;
 
-import edu.washington.cse.longan.trace.AJCollector;
+import edu.washington.cse.longan.trace.AJCollector2;
 
 privileged aspect Tracer {
 
-	AJCollector _collector = AJCollector.getInstance();
+	AJCollector2 _collector = AJCollector2.getInstance();
 
 	// all scoped method calls (super can't be captured)
 	pointcut methodEntry() : execution(* ca.uwaterloo.cs.se.bench.simple..*.* (..)) &&
