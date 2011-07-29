@@ -78,10 +78,10 @@
 		<path refid="${inconsistency.classpath}" />
 		
 		<!-- Classpath entries to support the tracing infrastructure -->
-		<pathelement location="${inconsistency.home}/lib/ca.lsmr.common_20110124.jar"/>
 		<pathelement location="${inconsistency.home}/lib/aspectjtools.jar"/>
 		<pathelement location="${inconsistency.home}/lib/aspectjrt.jar"/>
 		<fileset dir="${inconsistency.home}/" includes="DynamicTracer_*.jar" />
+		<fileset dir="${inconsistency.home}/" includes="ca.lsmr.common_*.jar"/>
 	</path>
 	
 
