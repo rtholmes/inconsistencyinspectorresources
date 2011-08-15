@@ -84,16 +84,17 @@ privileged aspect Tracer {
 //		_collector.fieldSet(thisJoinPoint, newValue);
 //	}
 
-	// before() : libraryEntry() {
-	// _collector.methodEnter(thisJoinPoint, true);
-	// }
-	//
-	// after() returning (Object o): libraryEntry() {
-	//
-	// _collector.methodExit(thisJoinPoint, o, true);
-	// }
+	 before() : libraryEntry() {
+	 _collector.methodEnter(thisJoinPoint, true);
+	 }
+	
+	 after() : libraryEntry() {
+	
+	 _collector.methodExit(thisJoinPoint, true);
+	 }
 
 	// TODO: should we be using around or before/after?
+/*
 	Object around() : libraryEntry()
 	{
 		JoinPoint jp = thisJoinPoint;
@@ -113,6 +114,7 @@ privileged aspect Tracer {
 		}
 
 	}
+*/
 
 	after() throwing (Throwable e): libraryEntry() {
 		_collector.exceptionThrown(thisJoinPoint, e, true);
@@ -130,15 +132,16 @@ privileged aspect Tracer {
 		_collector.afterCreateException(thisJoinPoint);
 	}
 
-	// before() : methodEntry() {
-	// _collector.methodEnter(thisJoinPoint, false);
-	// }
+	 before() : methodEntry() {
+	 _collector.methodEnter(thisJoinPoint, false);
+	 }
 	//
-	// after() returning (Object returnObject):methodEntry() {
-	// _collector.methodExit(thisJoinPoint,returnObject, false);
-	// }
+	 after() : methodEntry() {
+	 _collector.methodExit(thisJoinPoint, false);
+	 }
 
 	// Object around() : methodEntryNoTests()
+/*
 	Object around() : methodEntry()
 	{
 		JoinPoint jp = thisJoinPoint;
@@ -158,6 +161,7 @@ privileged aspect Tracer {
 		}
 
 	}
+*/
 
 	before() : constructor() {
 
