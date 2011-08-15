@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="lib" path="ca.lsmr.common_20110124.jar"/>
-	<classpathentry kind="lib" path="ca.uwaterloo.cs.se.inconsistency.core_20110728.jar"/>
-	<classpathentry kind="lib" path="DependencyFinder_20110728.jar"/>
-	<classpathentry kind="lib" path="DependencyFinderResources/lib/DependencyFinder.jar"/>
 	<classpathentry kind="lib" path="DependencyFinderResources/lib/guava.jar"/>
 	<classpathentry kind="lib" path="DependencyFinderResources/lib/jakarta-oro.jar"/>
 	<classpathentry kind="lib" path="DependencyFinderResources/lib/log4j.jar"/>
-	<classpathentry kind="lib" path="DynamicTracer_20110729.jar"/>
-	<classpathentry kind="lib" path="lib/aspectjrt.jar"/>
-	<classpathentry kind="lib" path="lib/aspectjtools.jar"/>
-	<classpathentry kind="lib" path="lib/ca.lsmr.common_20110124.jar"/>
 	<classpathentry kind="lib" path="lib/guava-r07.jar"/>
 	<classpathentry kind="lib" path="lib/hamcrest-core-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/jdom-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/junit_4.8.1.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.15.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="ca.lsmr.common_20110124.jar"/>
+	<classpathentry kind="lib" path="ca.uwaterloo.cs.se.inconsistency.core_20110815.jar"/>
+	<classpathentry kind="lib" path="DependencyFinder_20110813.jar"/>
+	<classpathentry kind="lib" path="DynamicTracer_20110815.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
