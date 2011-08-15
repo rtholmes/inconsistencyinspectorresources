@@ -1,4 +1,4 @@
-<project name="InconsistencyInspectorcyInspectorResources">
+<project name="InconsistencyInspectorResources">
 	<description>
 		This project can be added to existing ant-based build systems to extract static and dynamic call graphs.
 	</description>
@@ -21,6 +21,7 @@
 		<pathelement location="${dependencyfinder.home}/classes" />
 		<fileset dir="${inconsistency.home}/" includes="ca.uwaterloo.cs.se.inconsistency.core_*.jar" />
 		<fileset dir="${inconsistency.home}/" includes="DependencyFinder_*.jar" />
+		<fileset dir="${inconsistency.home}/" includes="ca.lsmr.common_*.jar"/>
 		<pathelement location="${dependencyfinder.home}/lib/jakarta-oro.jar" />
 		<pathelement location="${dependencyfinder.home}/lib/log4j.jar" />
 	</path>
@@ -43,6 +44,9 @@
 		<!-- ensure reporting directories exist -->
 		<mkdir dir="${report.staticAnalysis}" />
 		<mkdir dir="${report.dynamicAnalysis}" />
+		<delete dir="${report.dynamicAnalysis}/tmp" />
+		<mkdir dir="${report.dynamicAnalysis}/tmp" />
+
 	</target>
 
 	<!-- 
@@ -54,7 +58,7 @@
 		
 		<!-- NOTE: 'ant compile' must happen before this! -->
 		<!-- NOTE: for unknown reasons this usually fails on the first attempt if 'ant clean' is run first -->
-		<dependencyextractor destfile="${report.staticAnalysis}/static-${DSTAMP}_${TSTAMP}.xml" xml="yes" minimize="yes">
+		<dependencyextractor destfile="${report}/${DSTAMP}-${TSTAMP}_static.xml" xml="yes" minimize="yes">
 			<path>
 				<pathelement location="${inconsistency.static.src}" />
 				<pathelement location="${inconsistency.static.test}" />
@@ -62,7 +66,7 @@
 		</dependencyextractor>
 
 		<!-- make a copy of the latest extraction for easier reference -->
-		<copy file="${report.staticAnalysis}/static-${DSTAMP}_${TSTAMP}.xml" tofile="${report.staticAnalysis}/static_latest.xml" />
+		<copy file="${report}/${DSTAMP}-${TSTAMP}_static.xml" tofile="${report}/static_latest.xml" />
 		
 	</target>
 	<!-- / Main Static Extraction Task -->
@@ -80,8 +84,9 @@
 		<!-- Classpath entries to support the tracing infrastructure -->
 		<pathelement location="${inconsistency.home}/lib/aspectjtools.jar"/>
 		<pathelement location="${inconsistency.home}/lib/aspectjrt.jar"/>
-		<fileset dir="${inconsistency.home}/" includes="DynamicTracer_*.jar" />
 		<fileset dir="${inconsistency.home}/" includes="ca.lsmr.common_*.jar"/>
+		<fileset dir="${inconsistency.home}/" includes="DynamicTracer_*.jar" />
+		<fileset dir="${inconsistency.home}/" includes="ca.uwaterloo.cs.se.inconsistency.core_*.jar" />
 	</path>
 	
 
@@ -113,9 +118,13 @@
 	
 	</target>
 
-	<target name="iiDynamic" description="Run test suite collecting the dynamic call graph.">
+   <taskdef name="dynamictracer" classname="edu.washington.cse.longan.trace.DynamicTracer">
+			<classpath refid="inconsistency.instrumented.classpath" />	
+			</taskdef>
+
+	<target name="iiDynamic" depends="iiInit" description="Run test suite collecting the dynamic call graph.">
 		
-		<junit maxmemory="${maxmemory}" printsummary="yes" haltonfailure="no" fork="yes" forkmode="once">
+		<junit maxmemory="${maxmemory}" printsummary="yes" haltonfailure="no" fork="yes" forkmode="perTest">
 			<classpath refid="inconsistency.instrumented.classpath" />
 			<formatter type="plain" usefile="false" />
 			
@@ -127,7 +136,12 @@
 	      	</batchtest>
 		</junit>
 
+		<!-- combine the dynamic traces into a single file -->
+		<dynamictracer destfile="${report}/${DSTAMP}-${TSTAMP}_dynamic.xml" tmpdir="${report.dynamicAnalysis}/tmp"/>
+		<copy file="${report}/${DSTAMP}-${TSTAMP}_dynamic.xml" tofile="${report}/dynamic_latest.xml" />
+			
 	</target>
 
+	<target name="iiComplete" depends="clean, compile, iiStatic, iiWeave, iiDynamic" description="Run the complete II stack."/>
 
 </project>
