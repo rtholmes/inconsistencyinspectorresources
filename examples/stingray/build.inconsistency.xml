@@ -15,7 +15,7 @@
 
 	<!-- file prefix for the output files -->
 	<!-- this clause makes the `-Dii=foo_` optional -->
-	<condition property="ii" value="ii_">
+	<condition property="ii" value="ii">
 		<not>
 			<isset property="ii"/>
 		</not>
@@ -66,7 +66,7 @@
 		
 		<!-- NOTE: 'ant compile' must happen before this! -->
 		<!-- NOTE: for unknown reasons this usually fails on the first attempt if 'ant clean' is run first -->
-		<dependencyextractor destfile="${report}/${ii}${DSTAMP}-${TSTAMP}_static.xml" xml="yes" minimize="yes">
+		<dependencyextractor destfile="${report}/${ii}_${DSTAMP}-${TSTAMP}_static.xml" xml="yes" minimize="yes">
 			<path>
 				<pathelement location="${inconsistency.static.src}" />
 				<pathelement location="${inconsistency.static.test}" />
@@ -194,7 +194,7 @@
 		<fail if="unittest.failure" message="JUnit Test Failed!!"/>
 
 	<!-- combine the dynamic traces into a single file -->
-		<dynamictracer destfile="${report}/${ii}${DSTAMP}-${TSTAMP}_dynamic.xml" tmpdir="${report.dynamicAnalysis}/tmp"/>
+		<dynamictracer destfile="${report}/${ii}_${DSTAMP}-${TSTAMP}_dynamic.xml" tmpdir="${report.dynamicAnalysis}/tmp"/>
 		<copy file="${report}/${ii}_${DSTAMP}-${TSTAMP}_dynamic.xml" tofile="${report}/latest_dynamic.xml" />
 		<copy file="${report}/${ii}_${DSTAMP}-${TSTAMP}_dynamic.xml" tofile="${report}/${ii}_dynamic.xml" />
 		
