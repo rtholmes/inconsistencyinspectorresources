@@ -108,7 +108,7 @@
 
 		<!-- weave program -->
 		
-		<iajc destDir="${inconsistency.instrumented}" Xlintwarnings="false" showWeaveInfo="false" source="1.6">			
+<iajc destDir="${inconsistency.instrumented}" Xlintwarnings="false" showWeaveInfo="false" source="1.6">			
 
 			<argfiles>
 				
@@ -145,8 +145,8 @@
 		</copy>
 
 		<!-- copy all resources required -->
-		<copy file="${XXX_STINGRAY_XXX.root}/i18n/ResourceBundle.xsd" todir="${inconsistency.instrumented}/com/XXX_STINGRAY_XXX/service/resource/" overwrite="true" />
-		<copy file="${XXX_STINGRAY_XXX.root}/i18n/ImgGen/images.xsd" tofile="${inconsistency.instrumented}/com/XXX_STINGRAY_XXX/service/ImgGen.xsd" overwrite="true" />
+		<copy file="${STINGRAY.root}/i18n/ResourceBundle.xsd" todir="${inconsistency.instrumented}/com/STINGRAY/service/resource/" overwrite="true" />
+		<copy file="${STINGRAY.root}/i18n/ImgGen/images.xsd" tofile="${inconsistency.instrumented}/com/STINGRAY/service/ImgGen.xsd" overwrite="true" />
 	
 	</target>
 
@@ -158,16 +158,16 @@
 
 	<target name="iiDynamic" depends="iiInit" description="Run test suite collecting the dynamic call graph.">
 		
-		<echo message="Running common unit test suite..." />
-		<echo message="Back up sql file located in XXX_STINGRAY_XXX/sql/bin/unittest.backup.sql." />
+<echo message="Running common unit test suite..." />
+		<echo message="Back up sql file located in STINGRAY/sql/bin/unittest.backup.sql." />
 		<property name="maxmemory" value="1536m" />
 		<junit fork="yes" printsummary="yes" maxmemory="${maxmemory}" haltonfailure="no" >
 		<jvmarg value="-Dnet.sf.ehcache.skipUpdateCheck=true" />
 
-		<jvmarg value="-XX:MaxPermSize=512m" />
-		<jvmarg value="-XX:+UseConcMarkSweepGC" />
-		<!--<jvmarg value="-XX:+CMSPermGenSweepingEnabled" /> -->
-		<jvmarg value="-XX:+CMSClassUnloadingEnabled" />
+<jvmarg value="-XX:MaxPermSize=512m" />
+<jvmarg value="-XX:+UseConcMarkSweepGC" />
+<!--<jvmarg value="-XX:+CMSPermGenSweepingEnabled" /> -->
+<jvmarg value="-XX:+CMSClassUnloadingEnabled" />
 
 			<syspropertyset>
 				<propertyref builtin="commandline" />
@@ -175,7 +175,7 @@
 			<sysproperty key="log4j.configuration" value="log4j-test.xml" />
 			<sysproperty key="org.apache.cxf.Logger" value="org.apache.cxf.common.logging.Log4jLogger" />
 			<!--<classpath refid="junit.classpath" />-->
-			<classpath refid="inconsistency.instrumented.classpath" />
+<classpath refid="inconsistency.instrumented.classpath" />
 			<formatter type="plain" usefile="false" />
 			<formatter type="xml" />
 			<batchtest toDir="${test.reports.dir}" unless="unittest.failure">
@@ -185,13 +185,27 @@
 				</fileset>
 			</batchtest>
 		</junit>
+<!--		
+<antcall target="on-unittest-failure"/>
+		<echo message="Importing previous data into the databases..." />
+		<antcall target="restore-dev-unittest-schema" />
+-->
 
-		<!--		
-			<antcall target="on-unittest-failure"/>
-			<echo message="Importing previous data into the databases..." />
-			<antcall target="restore-dev-unittest-schema" />
-		-->
 		<fail if="unittest.failure" message="JUnit Test Failed!!"/>
+
+<!--
+		<junit maxmemory="${maxmemory}" printsummary="yes" haltonfailure="no" fork="yes" forkmode="once">
+			<classpath refid="inconsistency.instrumented.classpath" />
+			<formatter type="plain" usefile="false" />
+			
+	
+			<batchtest todir="${reports}/test">
+	        	<fileset dir="${test.source.root}">
+	          		<include name="**/*Test.java"/>
+	        	</fileset>
+	      	</batchtest>
+		</junit>
+-->
 
 	<!-- combine the dynamic traces into a single file -->
 		<dynamictracer destfile="${report}/${ii}_${DSTAMP}-${TSTAMP}_dynamic.xml" tmpdir="${report.dynamicAnalysis}/tmp"/>
@@ -200,6 +214,38 @@
 		
 	</target>
 
+
 	<target name="iiComplete" depends="clean, compile, test-prepare, iiStatic, iiWeave, iiDynamic" description="Run the complete II stack."/>
+
+<!--
+
+ 
+		
+		<echo message="Running common unit test suite..." />
+		<echo message="Back up sql file located in STINGRAY/sql/bin/unittest.backup.sql." />
+		<property name="maxmemory" value="256m" />
+		<junit fork="yes" maxmemory="${maxmemory}" haltonfailure="false" failureproperty="unittest.failure" >
+		<jvmarg value="-Dnet.sf.ehcache.skipUpdateCheck=true" />
+			<syspropertyset>
+				<propertyref builtin="commandline" />
+			</syspropertyset>
+			<sysproperty key="log4j.configuration" value="log4j-test.xml" />
+			<sysproperty key="org.apache.cxf.Logger" value="org.apache.cxf.common.logging.Log4jLogger" />
+			<classpath refid="junit.classpath" />
+			<formatter type="plain" usefile="false" />
+			<formatter type="xml" />
+			<batchtest toDir="${test.reports.dir}" unless="unittest.failure">
+				<fileset dir="${test.src.dir}">
+					<include name="**/*Test.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+		<antcall target="on-unittest-failure"/>
+		<echo message="Importing previous data into the databases..." />
+		<antcall target="restore-dev-unittest-schema" />
+		<fail if="unittest.failure" message="JUnit Test Failed!!"/>
+-->
+
+
 
 </project>
