@@ -35,12 +35,12 @@ Instructions
 Advanced Notes
 ---------------------------------
 
-** Logging **
+**Logging**
 
 Two parameters are provided for disabling logging in the inconsistencyinspectorresources projects:
 
 	1) ``-Dlsmr.logLevel="OFF"`` Will disable the majority of log messages (in anything that uses log4j).
-	2) ``-Dii.logLevel="OFF"`` Will disable log messages in the ``inconsistecy.core`` project (GWT projects cannot depend on log4j directly).
+	2) ``-Dii.logLevel="OFF"`` Will disable log messages in the ``inconsistecy.core`` project. The parameter is different here because GWT projects cannot depend on log4j and we have created our own log wrapper here instead.
 
 NOTE: these parameters work on the command line or in Eclipse but will not work through ant (e.g., ant does not forward the values to any JVMs it launches).
 
