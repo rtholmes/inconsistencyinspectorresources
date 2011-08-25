@@ -35,4 +35,13 @@ Instructions
 Advanced Notes
 ---------------------------------
 
+** Logging **
+
+Two parameters are provided for disabling logging in the inconsistencyinspectorresources projects:
+
+	1) ``-Dlsmr.logLevel="OFF"`` Will disable the majority of log messages (in anything that uses log4j).
+	2) ``-Dii.logLevel="OFF"`` Will disable log messages in the ``inconsistecy.core`` project (GWT does not let this project use log4j directly).
+
+NOTE: these parameters work on the command line or in Eclipse but will not work through ant (e.g., ant does not forward the values to any JVMs it launches).
+
 If you have any problem running the iStatic or iDynamic targets you may need to modify the ``build.inconsistency.xml``. This may be necessary if you have an unusual or complex build environment. 
