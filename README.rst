@@ -14,9 +14,8 @@ Instructions
 
 **Simple Instructions:**
 
-	1) Download and configure this project.
-	2) Compile your system and run ``ant iStatic`` to extract the static call graph.
-	3) Weave your system (``ant weave``) and run its test suite to extract the dynamic call graph.
+	1) Download and configure this project (steps 1-5 below).
+	2) Compile your system and run ``ant iiStatic`` to extract the static call graph (or run ``ant iiComplete`` to extract the static and dynamic call graphs).
 
 **Complete Instructions:**
 
