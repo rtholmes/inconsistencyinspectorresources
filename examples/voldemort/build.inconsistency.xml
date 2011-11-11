@@ -21,6 +21,7 @@
 		<pathelement location="${dependencyfinder.home}/classes" />
 		<fileset dir="${inconsistency.home}/" includes="ca.uwaterloo.cs.se.inconsistency.core_*.jar" />
 		<fileset dir="${inconsistency.home}/" includes="DependencyFinder_*.jar" />
+		<fileset dir="${inconsistency.home}/" includes="ca.lsmr.common_*.jar" />
 		<pathelement location="${dependencyfinder.home}/lib/jakarta-oro.jar" />
 		<pathelement location="${dependencyfinder.home}/lib/log4j.jar" />
 	</path>
@@ -43,6 +44,7 @@
 		<!-- ensure reporting directories exist -->
 		<mkdir dir="${report.staticAnalysis}" />
 		<mkdir dir="${report.dynamicAnalysis}" />
+		<mkdir dir="${report.dynamicAnalysis}/tmp/" />
 	</target>
 
 	<!-- 
@@ -81,6 +83,7 @@
 		<pathelement location="${inconsistency.home}/lib/aspectjtools.jar"/>
 		<pathelement location="${inconsistency.home}/lib/aspectjrt.jar"/>
 		<fileset dir="${inconsistency.home}/" includes="DynamicTracer_*.jar" />
+		<fileset dir="${inconsistency.home}/" includes="ca.uwaterloo.cs.se.inconsistency.core_*.jar" />		
 		<fileset dir="${inconsistency.home}/" includes="ca.lsmr.common_*.jar"/>
 	</path>
 	
@@ -134,4 +137,6 @@
 	    </junitreport>
 	
 	</target>
+	
+	<target name="iiComplete" depends="clean, build, buildtest, iiStatic, iiWeave, iiDynamic" description="Run the complete II stack."/>
 </project>

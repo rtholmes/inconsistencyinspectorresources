@@ -108,7 +108,7 @@ privileged aspect Tracer {
 
 		} finally {
 
-			_collector.methodExit(jp, retObject, true);
+			_collector.methodExit(jp, true);
 
 		}
 
@@ -153,7 +153,7 @@ privileged aspect Tracer {
 
 		} finally {
 
-			_collector.methodExit(jp, retObject, false);
+			_collector.methodExit(jp, false);
 
 		}
 
