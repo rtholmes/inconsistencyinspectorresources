@@ -135,7 +135,12 @@
 	      </fileset>
 	      <report todir="${testhtml.dir}" format="frames" />
 	    </junitreport>
-	
+
+		<!-- combine dynamic trace files -->
+		<dynamictracer destfile="${report}/${ii}_${DSTAMP}-${TSTAMP}_dynamic.xml" tmpdir="${report.dynamicAnalysis}/tmp"/>
+		<copy file="${report}/${ii}_${DSTAMP}-${TSTAMP}_dynamic.xml" tofile="${report}/latest_dynamic.xml" />
+		<copy file="${report}/${ii}_${DSTAMP}-${TSTAMP}_dynamic.xml" tofile="${report}/${ii}_dynamic.xml" />
+
 	</target>
 	
 	<target name="iiComplete" depends="clean, build, buildtest, iiStatic, iiWeave, iiDynamic" description="Run the complete II stack."/>
