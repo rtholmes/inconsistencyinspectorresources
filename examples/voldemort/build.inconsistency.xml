@@ -16,6 +16,18 @@
 	<!-- Location for Dependency Finder related files (taskdefs, etc.) -->
 	<property name="dependencyfinder.home" value="${inconsistency.home}/DependencyFinderResources" />
 
+	<!-- file prefix for the output files -->
+	<!-- this clause makes the `-Dii=foo_` optional -->
+	<condition property="ii" value="ii">
+		<not>
+			<isset property="ii"/>
+		</not>
+	</condition>
+
+	<taskdef name="dynamictracer" classname="edu.washington.cse.longan.trace.DynamicTracer">
+		<classpath refid="inconsistency.instrumented.classpath" />	
+	</taskdef>
+
 	<!-- These are the resources needed by the DependencyFinder framework to run the executable behind the iStatic task -->
 	<path id="iiStatic.resources">
 		<pathelement location="${dependencyfinder.home}/classes" />
