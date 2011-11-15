@@ -68,7 +68,7 @@
 		
 		<!-- NOTE: 'ant compile' must happen before this! -->
 		<!-- NOTE: for unknown reasons this usually fails on the first attempt if 'ant clean' is run first -->
-		<dependencyextractor destfile="${report.staticAnalysis}/static-${DSTAMP}_${TSTAMP}.xml" xml="yes" minimize="yes">
+		<dependencyextractor destfile="${report}/${ii}_${DSTAMP}-${TSTAMP}_static.xml" xml="yes" minimize="yes">			
 			<path>
 				<pathelement location="${inconsistency.static.src}" />
 				<pathelement location="${inconsistency.static.test}" />
@@ -76,8 +76,9 @@
 		</dependencyextractor>
 
 		<!-- make a copy of the latest extraction for easier reference -->
-		<copy file="${report.staticAnalysis}/static-${DSTAMP}_${TSTAMP}.xml" tofile="${report.staticAnalysis}/static_latest.xml" />
-		
+		<copy file="${report}/${ii}_${DSTAMP}-${TSTAMP}_static.xml" tofile="${report}/latest_static.xml" />
+		<copy file="${report}/${ii}_${DSTAMP}-${TSTAMP}_static.xml" tofile="${report}/${ii}_static.xml" />
+				
 	</target>
 	<!-- / Main Static Extraction Task -->
 
