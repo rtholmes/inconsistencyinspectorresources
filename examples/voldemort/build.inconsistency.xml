@@ -87,6 +87,9 @@
 		<fileset dir="${inconsistency.home}/" includes="ca.lsmr.common_*.jar"/>
 	</path>
 	
+	<taskdef name="dynamictracer" classname="edu.washington.cse.longan.trace.DynamicTracer">
+		<classpath refid="inconsistency.instrumented.classpath" />	
+	</taskdef>
 
 	<!-- After the project has been compiled it can be woven -->
 	<target name="iiWeave" depends="iiInit" description="Instrument resources to prepare for dynamic call graph extraction.">
