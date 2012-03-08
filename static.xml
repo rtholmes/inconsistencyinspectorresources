@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="iiStatic" name="Inconsistency Inspector">
+	
+	<!-- SET THIS: this should point to the inconsistencyinspectorresources project -->
+	<property name="inconsistency.home" location="/Users/rtholmes/dev/inconsistencyinspectorresources/" />
+
+	<!-- SET THESE: this can point to a directory containing .class files or specific jar files. -->
+	<!-- They must point to _something_; for null just point to report/ or something -->
+	<property name="inconsistency.static.src" location="mobile-common.jar" />
+	<property name="inconsistency.static.test" location="report/" />	
+
+
+	
+	<!-- Reporting locations -->
+	<property name="report" location="report" />
+	<property name="report.staticAnalysis" location="${report}/static" />
+		
+	<!-- Location for Dependency Finder related files (taskdefs, etc.) -->
+	<property name="dependencyfinder.home" value="${inconsistency.home}/DependencyFinderResources" />
+	
+	<!-- These are the resources needed by the DependencyFinder framework to run the executable behind the iStatic task -->
+	<path id="iiStatic.resources">
+		<pathelement location="${dependencyfinder.home}/classes" />
+		<fileset dir="${inconsistency.home}/" includes="ca.uwaterloo.cs.se.inconsistency.core_*.jar" />
+		<fileset dir="${inconsistency.home}/" includes="DependencyFinder_*.jar" />
+		<fileset dir="${inconsistency.home}/" includes="ca.lsmr.common_*.jar"/>		
+		<pathelement location="${dependencyfinder.home}/lib/jakarta-oro.jar" />
+		<pathelement location="${dependencyfinder.home}/lib/log4j.jar" />
+	</path>
+	
+	
+	<!-- dependencyfinder ant definitions -->
+	<taskdef resource="dependencyfindertasks.properties">
+		<classpath refid="iiStatic.resources" />
+	</taskdef>
+
+	<target name="iiInit" description="Inconsistency: initialize environment (e.g., ensure folders exist))">
+		<!-- create the time stamp -->
+		<tstamp />
+		<!-- ensure reporting directories exist -->
+		<mkdir dir="${report.staticAnalysis}" />
+	</target>
+
+	<!-- 
+		Main Static Extraction Task
+		Before this can be run the system _must_ be compiled first (e.g., ant compile)
+	 -->
+	<target name="iiStatic" depends="iiInit" description="Extract static call graph">
+		<!-- BUG: This is capturing our tracing code -->
+		
+		<!-- NOTE: 'ant compile' must happen before this! -->
+		<!-- NOTE: for unknown reasons this usually fails on the first attempt if 'ant clean' is run first -->
+		<dependencyextractor destfile="${report.staticAnalysis}/static-${DSTAMP}_${TSTAMP}.xml" xml="yes" minimize="yes">
+			<path>
+				<pathelement location="${inconsistency.static.src}" />
+				<pathelement location="${inconsistency.static.test}" />
+			</path>
+		</dependencyextractor>
+
+		<!-- make a copy of the latest extraction for easier reference -->
+		<copy file="${report.staticAnalysis}/static-${DSTAMP}_${TSTAMP}.xml" tofile="${report.staticAnalysis}/static_latest.xml" />
+		
+	</target>
+	<!-- / Main Static Extraction Task -->
+
+	
+
+</project>
