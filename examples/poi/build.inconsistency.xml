@@ -1,0 +1,227 @@
+<project name="InconsistencyInspectorcyInspectorResources">
+	<description>
+		This project can be added to existing ant-based build systems to extract static and dynamic call graphs.
+	</description>
+
+	<!-- InconsistencyInspector.properties is the main configuration file -->
+	<property file="InconsistencyInspector.properties" />
+	
+	<!-- Reporting locations -->
+	<property name="report" location="${report.home}" />
+	<property name="report.staticAnalysis" location="${report}/static" />
+	<property name="report.dynamicAnalysis" location="${report}/dynamic" />
+
+	<property name="maxmemory" value="1536m" />
+
+	<!-- Location for Dependency Finder related files (taskdefs, etc.) -->
+	<property name="dependencyfinder.home" value="${inconsistency.home}/DependencyFinderResources" />
+
+	<!-- file prefix for the output files -->
+	<!-- this clause makes the `-Dii=foo_` optional -->
+	<condition property="ii" value="ii">
+		<not>
+			<isset property="ii"/>
+		</not>
+	</condition>
+
+	<!-- These are the resources needed by the DependencyFinder framework to run the executable behind the iStatic task -->
+	<path id="iiStatic.resources">
+		<pathelement location="${dependencyfinder.home}/classes" />
+		<fileset dir="${inconsistency.home}/" includes="ca.uwaterloo.cs.se.inconsistency.core_*.jar" />
+		<fileset dir="${inconsistency.home}/" includes="DependencyFinder_*.jar" />
+		<fileset dir="${inconsistency.home}/" includes="ca.lsmr.common_*.jar" />
+		<pathelement location="${dependencyfinder.home}/lib/jakarta-oro.jar" />
+		<pathelement location="${dependencyfinder.home}/lib/log4j.jar" />
+	</path>
+
+	<!-- dependencyfinder ant definitions -->
+	<taskdef resource="dependencyfindertasks.properties">
+		<classpath refid="iiStatic.resources" />
+	</taskdef>
+
+	<!-- aspectj ant definitions -->
+	<taskdef resource="org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties">
+		<classpath>
+			<pathelement location="${inconsistency.home}/lib/aspectjtools.jar" />
+		</classpath>
+	</taskdef>
+
+	<target name="iiInit" description="Inconsistency: initialize environment (e.g., ensure folders exist))">
+		<!-- create the time stamp -->
+		<tstamp />
+		<!-- ensure reporting directories exist -->
+		<mkdir dir="${report.staticAnalysis}" />
+		<mkdir dir="${report.dynamicAnalysis}" />
+		<mkdir dir="${report.dynamicAnalysis}/tmp/" />
+	</target>
+
+	<!-- 
+		Main Static Extraction Task
+		Before this can be run the system _must_ be compiled first (e.g., ant compile)
+	 -->
+	<target name="iiStatic" depends="iiInit" description="Extract static call graph">
+		<!-- BUG: This is capturing our tracing code -->
+		
+		<!-- NOTE: 'ant compile' must happen before this! -->
+		<!-- NOTE: for unknown reasons this usually fails on the first attempt if 'ant clean' is run first -->
+		<dependencyextractor destfile="${report}/${ii}_${DSTAMP}-${TSTAMP}_static.xml" xml="yes" minimize="yes">			
+			<path>
+				<pathelement location="${inconsistency.static.src}" />
+				<pathelement location="${inconsistency.static.test}" />
+			</path>
+		</dependencyextractor>
+
+		<!-- make a copy of the latest extraction for easier reference -->
+		<copy file="${report}/${ii}_${DSTAMP}-${TSTAMP}_static.xml" tofile="${report}/latest_static.xml" />
+		<copy file="${report}/${ii}_${DSTAMP}-${TSTAMP}_static.xml" tofile="${report}/${ii}_static.xml" />
+				
+	</target>
+	<!-- / Main Static Extraction Task -->
+
+
+	<!-- Classpath for dynamic tracing -->
+	<path id="inconsistency.instrumented.classpath">
+
+		<!-- Earlier classes override later ones (e.g., here the instrumented classes trumps their non-instrumented counterparts) -->
+		<path location="${inconsistency.instrumented}" />
+		
+		<!-- Corresponds to the classpath id used by the project test target -->
+<!--		<path refid="${inconsistency.classpath}" /> -->
+<!--
+				<pathelement location="${build.classes}"/>
+		        <pathelement location="${build.tests}"/>
+		        <pathelement location="${build.tz}"/>
+		        <pathelement location="${jodaconvert.jar}"/>
+		        <pathelement path="${java.class.path}"/>
+-->	
+				<path refid="test.classpath" />
+				
+				<pathelement location="${main.commons-logging.jar}"/>
+		        <pathelement location="${main.commons-codec.jar}"/>
+		        <pathelement location="${main.log4j.jar}"/>
+		        <pathelement location="${main.junit.jar}"/>
+		        
+<!--				<path refid="main.classpath" />				-->
+		
+		
+		<!-- Classpath entries to support the tracing infrastructure -->
+		<pathelement location="${inconsistency.home}/lib/aspectjtools.jar"/>
+		<pathelement location="${inconsistency.home}/lib/aspectjrt.jar"/>
+		<fileset dir="${inconsistency.home}/" includes="DynamicTracer_*.jar" />
+		<fileset dir="${inconsistency.home}/" includes="ca.uwaterloo.cs.se.inconsistency.core_*.jar" />		
+		<fileset dir="${inconsistency.home}/" includes="ca.lsmr.common_*.jar"/>
+	</path>
+	
+
+	<!-- After the project has been compiled it can be woven -->
+	<target name="iiWeave" depends="iiInit" description="Instrument resources to prepare for dynamic call graph extraction.">
+
+		<!-- clean the target for the instrumented files -->
+    	<delete dir="${inconsistency.instrumented}" />
+		<mkdir 	dir="${inconsistency.instrumented}" />
+
+		<!-- weave program -->
+		<iajc destDir="${inconsistency.instrumented}" Xlintwarnings="false" showWeaveInfo="false" source="1.6">			
+
+			<argfiles>
+				<!-- the aspect list file describes which Tracer aspect to use -->
+				<pathelement location="${inconsistency.aspect.lst}" />
+			</argfiles>
+
+			<inpath>
+				<!-- these arguments describe which files to weave -->
+				<pathelement location="${inconsistency.static.src}" />
+				<pathelement location="${inconsistency.static.test}" />				
+			</inpath>
+
+			<classpath>
+				<path refid="inconsistency.instrumented.classpath" />
+			</classpath>
+		</iajc>
+	
+	</target>
+
+	<taskdef name="dynamictracer" classname="edu.washington.cse.longan.trace.DynamicTracer">
+		<classpath refid="inconsistency.instrumented.classpath" />	
+	</taskdef>
+
+
+	<target name="iiDynamic" description="Run test suite collecting the dynamic call graph.">
+		
+			<delete dir="${testreport.dir}" />
+		<mkdir 	dir="${testreport.dir}" />
+    	
+			<delete dir="${testhtml.dir}" />
+		<mkdir 	dir="${testhtml.dir}" />
+		
+	    <!--<replace-dir dir="${testreport.dir}" />
+	    <replace-dir dir="${testhtml.dir}" /> -->
+	
+	    <echo message="Running time tests ..."/>
+	    <junit printsummary="yes" haltonfailure="no" fork="yes"> <!-- try "once" -->
+	      <formatter type="xml"/>
+			<classpath refid="inconsistency.instrumented.classpath" />
+<!--
+	      <classpath>
+	        <pathelement location="${build.classes}"/>
+	        <pathelement location="${build.tests}"/>
+	        <pathelement location="${build.tz}"/>
+	        <pathelement location="${jodaconvert.jar}"/>
+	        <pathelement path="${java.class.path}"/>
+	      </classpath>
+-->
+	      <batchtest fork="yes">
+		<!--
+	        <fileset dir="${inconsistency.static.test}">
+	          <include name="**/TestAll.java"/>
+	        </fileset>
+	-->
+	<fileset dir="${main.src.test}">
+        <include name="**/Test*.java"/>
+        <exclude name="**/All*Tests.java"/>
+        <exclude name="**/TestUnfixedBugs.java"/>
+        <exclude name="**/TestcaseRecordInputStream.java"/>
+    </fileset>
+    
+	      </batchtest>
+	    </junit>
+	
+	    <junitreport todir="${testhtml.dir}">
+	      <fileset dir="${testreport.dir}">
+	        <include name="TEST-*.xml" />
+	      </fileset>
+	      <report todir="${testhtml.dir}" format="frames" />
+	    </junitreport>
+	
+	
+	
+	
+	
+	<!--
+		<junit maxmemory="${maxmemory}" printsummary="yes" haltonfailure="no" fork="yes"> 
+			<classpath refid="inconsistency.instrumented.classpath" />
+	      <formatter type="xml" />
+	      <batchtest fork="yes" todir="${testreport.dir}">
+	        <fileset dir="${test.source.root}">
+	          <include name="**/*Test.java" />
+	          <exclude name="**/Abstract*.java" />
+	        </fileset>
+	      </batchtest>
+	    </junit>
+	    <junitreport todir="${testhtml.dir}">
+	      <fileset dir="${testreport.dir}">
+	        <include name="TEST-*.xml" />
+	      </fileset>
+	      <report todir="${testhtml.dir}" format="frames" />
+	    </junitreport>
+		-->
+		
+		<!-- combine dynamic trace files -->
+		<dynamictracer destfile="${report}/${ii}_${DSTAMP}-${TSTAMP}_dynamic.xml" tmpdir="${report.dynamicAnalysis}/tmp"/>
+		<copy file="${report}/${ii}_${DSTAMP}-${TSTAMP}_dynamic.xml" tofile="${report}/latest_dynamic.xml" />
+		<copy file="${report}/${ii}_${DSTAMP}-${TSTAMP}_dynamic.xml" tofile="${report}/${ii}_dynamic.xml" />
+
+	</target>
+	
+	<target name="iiComplete" depends="clean, compile, iiWeave, iiDynamic" description="Run the complete II stack."/>
+</project>
