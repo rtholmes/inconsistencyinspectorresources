@@ -11,6 +11,18 @@
 	<property name="report.staticAnalysis" location="${report}/static" />
 	<property name="report.dynamicAnalysis" location="${report}/dynamic" />
 
+	<!-- POI required properties -->
+	<property name="POI.testdata.path" value="test-data"/>
+	<property name="java.awt.headless" value="true"/>
+	<property name="org.apache.poi.util.POILogger" value="org.apache.poi.util.NullLogger"/>
+	
+	<!-- POI property set -->
+	<propertyset id="junit.properties">
+	        <propertyref name="POI.testdata.path"/>
+	        <propertyref name="java.awt.headless"/>
+	        <propertyref name="org.apache.poi.util.POILogger"/>
+	</propertyset>
+	
 	<property name="maxmemory" value="1536m" />
 
 	<!-- Location for Dependency Finder related files (taskdefs, etc.) -->
@@ -158,7 +170,9 @@
 	    <replace-dir dir="${testhtml.dir}" /> -->
 	
 	    <echo message="Running time tests ..."/>
-	    <junit printsummary="yes" haltonfailure="no" fork="yes"> <!-- try "once" -->
+	    <junit printsummary="yes" haltonfailure="no" fork="yes"> 
+		<syspropertyset refid="junit.properties"/>
+	<!-- try "once" -->
 	      <formatter type="xml"/>
 			<classpath refid="inconsistency.instrumented.classpath" />
 <!--
