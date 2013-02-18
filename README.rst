@@ -12,7 +12,13 @@ This project contains the resources require to collect data for the Inconsistenc
 Instructions
 ---------------------------------
 
-**Simple Instructions:**
+**Extract static graph from jar**
+
+	* Clone this project
+	* Edit InconsistencyInspectorStandalone.properties (just the top line) to point to wherever you cloned the project (complete path)
+	* Extract the graph ``ant iiStatic -Djar=android.jar'
+
+**Complete II Simple Instructions:**
 
 	1) Download and configure this project (steps 1-5 below).
 	2) Compile your system and run ``ant iiStatic`` to extract the static call graph (or run ``ant iiComplete`` to extract the static and dynamic call graphs).
